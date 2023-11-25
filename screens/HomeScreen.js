@@ -3,12 +3,21 @@ import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { getAuth }from "firebase/auth"
 
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { Ionicons } from '@expo/vector-icons';
+
+import Welcome from './Welcome'
+import Contacts from './Contacts'
+import Settings from './Settings'
 
 
 const HomeScreen = () => {
   const navigation = useNavigation()
   const auth = getAuth()
 
+  const Stack = createNativeStackNavigator();
+  const Tab = createBottomTabNavigator();
   const handleSignOut = () => {
        auth.signOut()
       .then(() => {
@@ -18,20 +27,35 @@ const HomeScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <Text>
-        Email: 
-        
-        {auth.currentUser?.email}
-        
-        </Text>
-      <TouchableOpacity
-        onPress={handleSignOut}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Sign out</Text>
-      </TouchableOpacity>
-    </View>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          // Set the tab bar icon based on the route name
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Contacts') {
+            iconName = focused ? 'person' : 'person-outline';
+          } else if (route.name === 'Settings') {
+            iconName = focused ? 'settings' : 'settings-outline';
+          }
+
+          // Return the Ionicons component with the appropriate icon name
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+      tabBarOptions={{
+        activeTintColor: 'blue', // Color of the active tab
+        inactiveTintColor: 'gray', // Color of inactive tabs
+      }}
+    >
+      {/* Define individual screens for each tab */}
+      <Tab.Screen name="Welcome" component={Welcome} />
+      <Tab.Screen name="Contacts" component={Contacts} />
+      <Tab.Screen name="Settings" component={Settings } />
+    </Tab.Navigator>
+
   )
 }
 
