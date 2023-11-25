@@ -1,49 +1,60 @@
 import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-// import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth"
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth"
+// import { FirebaseApp } from 'firebase/app'
+
+import { authPersist } from '../firebaseConfig'
 
 
 const LoginScreen = () => {
+
+  const auth = getAuth();
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   const navigation = useNavigation()
+  const [checkingStatus, setCheckingStatus] = useState(true);
+
+
+
+  
 
   useEffect(()=>{
    
-    //  const auth = getAuth()
-    //  const unsubscribe = onAuthStateChanged(auth, (user)=>{
-    //      if (user) {
-    //       navigation.replace("Home")
-    //      }
-    //      setCheckingStatus(false)
-    //  })
+     const auth = getAuth()
+     const unsubscribe = onAuthStateChanged(auth, (user)=>{
+         if (user) {
+          navigation.replace("Home")
+         }
+         setCheckingStatus(false)
+     })
     
 
-    // return unsubscribe
+    return unsubscribe
  }, [])
 
 
-  const handleSignUp = async () => {
-    
-      //  await createUserWithEmailAndPassword(email, password)
-      // .then(userCredentials => {
-      //   const user = userCredentials.user;
-      //   console.log('Registered with:', user.email);
-      // })
-      // .catch(error => alert(error.message))
+const handleSignUp = async () => {
+  try {
+    const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredentials.user;
+    console.log('Registered with:', user.email);
+  } catch (error) {
+    alert(error.message);
   }
+};
 
-  const handleLogin = async () => {
-    
-      //  await signInWithEmailAndPassword(email, password)
-      // .then(userCredentials => {
-      //   const user = userCredentials.user;
-      //   console.log('Logged in with:', user.email);
-      // })
-      // .catch(error => alert(error.message))
+const handleLogin = async () => {
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    // If the login is successful, you can navigate to the next screen or perform other actions
+    console.log('Logged in successfully');
+  } catch (error) {
+    // If there's an error during login, show an alert
+    Alert.alert('Login Error', error.message);
   }
+};
 
 
   return (
